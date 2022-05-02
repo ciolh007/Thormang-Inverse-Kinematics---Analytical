@@ -1,0 +1,700 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Thormang Inverse Kinematics - Analytical</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/ntnuerc.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+        <script src="https://daybrush.com/scenejs/release/latest/dist/scene.min.js"></script>
+		
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+        <script src="js/ntnu.js"></script>
+    </head>
+    <body>
+        <div class="reveal">
+        <div class="slides">
+            
+<section id="first" data-state="first">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1> Thormang Inverse Kinematics - Analytical</h1>
+
+   <div class="author" style="text-align:center;">
+    
+<p>
+      Jacky Baltes<br>
+      National Taiwan Normal University<br>
+      Taipei, Taiwan<br>
+      <a href="mailto:jacky.baltes@ntnu.edu.tw">jacky.baltes@ntnu.edu.tw</a><br>
+</p>
+
+   </div>
+   <div class="date">
+    02 May 2022
+   </div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-e36004b1-80b5-4c05-8dd3-2aa298ebbd15" ><span id="id-e36004b1-80b5-4c05-8dd3-2aa298ebbd15"><img id="img-id-e36004b1-80b5-4c05-8dd3-2aa298ebbd15"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-522758a4-ec06-4af7-971b-86681d4203df" ><span id="id-522758a4-ec06-4af7-971b-86681d4203df"><img id="img-id-522758a4-ec06-4af7-971b-86681d4203df" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00003_frag_00001" data-state="slide_00003_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+<div class="jb-input jb-render jb-code" style="text-align:center">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-input-code jb-render">
+<div class="highlight" style="background: #f8f8f8; color:#101010;display=inline-block;"><pre style="line-height: 125%"><span></span><span style="color: #408080; font-style: italic"># These libraries provide us with the most often used features</span>
+
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">matplotlib.pyplot</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">plt</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">matplotlib.patches</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">mpatches</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">numpy</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">np</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">math</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">random</span>
+
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">jb_geometry</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">jbg</span>
+</pre></div>
+
+</div><!-- end of jb-input-code jb-render -->
+
+</div>
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-dd9a6315-e193-487a-920a-aba1a0d7cd48" ><span id="id-dd9a6315-e193-487a-920a-aba1a0d7cd48"><img id="img-id-dd9a6315-e193-487a-920a-aba1a0d7cd48"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-bbbb039d-20a5-4205-ad5e-3e350d7578c5" ><span id="id-bbbb039d-20a5-4205-ad5e-3e350d7578c5"><img id="img-id-bbbb039d-20a5-4205-ad5e-3e350d7578c5" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00004_frag_00001" data-state="slide_00004_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+
+<span id="id-7b9ba08e-0ef6-40f7-9c97-62ea578d5745" ><span id="id-7b9ba08e-0ef6-40f7-9c97-62ea578d5745"><img id="img-id-7b9ba08e-0ef6-40f7-9c97-62ea578d5745"     src="assets/images/thor1.jpg"/></span>
+</span>
+
+
+<div class="jb-text">
+<p>Thormang robot has 8 joints in each arm including the gripper</p>
+<p>Analytical solution only possible for two links/actuators. Two possible solutions</p>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-d2b71a6d-979f-40a3-84b0-2d94bddfa395" ><span id="id-d2b71a6d-979f-40a3-84b0-2d94bddfa395"><img id="img-id-d2b71a6d-979f-40a3-84b0-2d94bddfa395"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-1022afe6-fbfa-419d-8fa9-300a93f49fc2" ><span id="id-1022afe6-fbfa-419d-8fa9-300a93f49fc2"><img id="img-id-1022afe6-fbfa-419d-8fa9-300a93f49fc2" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00005_frag_00001" data-state="slide_00005_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Reducing Dimensionality</h1>
+
+<div class="jb-text">
+<p>Reduce the kinematic chain to a series of independent two link problems</p>
+<p>Break the arm into two parts:
+<ol>
+<li>Arm from shoulder to wrist</li>
+<li>Wrist to fingers (End effector)</li>
+</ol>
+</p>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-90a004a4-1c7b-4423-9e86-7f30738e29d5" ><span id="id-90a004a4-1c7b-4423-9e86-7f30738e29d5"><img id="img-id-90a004a4-1c7b-4423-9e86-7f30738e29d5"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-bded1c67-e5ac-4372-bf9c-631b6714f316" ><span id="id-bded1c67-e5ac-4372-bf9c-631b6714f316"><img id="img-id-bded1c67-e5ac-4372-bf9c-631b6714f316" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00006_frag_00001" data-state="slide_00006_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Seperate Arm and End effector</h1>
+
+<div class="jb-text">
+<p>If the wrist is too far away from the target, then it will be impossible to reach the target by moving the end effector</p>
+<p>One idea is to move the arm to any location close to the target (coarse approach) and then to use the end effector to 
+approach the target (fine approach)</p>
+<p>Depending on the application we may prefer certain orientations between end effector and target. 
+Can back calculate the position of the wrist from the position and orientation of the target</p>
+<p>Same idea when dealing with humanoid robots walking - feet parallel to ground and parallel to direction of motion</p>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-4eaa1329-96dd-48d1-8975-08d8b56a12bd" ><span id="id-4eaa1329-96dd-48d1-8975-08d8b56a12bd"><img id="img-id-4eaa1329-96dd-48d1-8975-08d8b56a12bd"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-b499742d-b916-47f1-9008-8b36b33b691b" ><span id="id-b499742d-b916-47f1-9008-8b36b33b691b"><img id="img-id-b499742d-b916-47f1-9008-8b36b33b691b" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00007_frag_00001" data-state="slide_00007_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Seperation of Arm and Wrist</h1>
+
+<div class="jb-text">
+<p>Brake kinematic chain of the arm into two components: arm and wrist</p>
+<p>Arm: 4 joints</p>
+<p>Wrist: 4 joints</p>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-dbd021ea-a656-43e3-ae04-5ac0994c16cc" ><span id="id-dbd021ea-a656-43e3-ae04-5ac0994c16cc"><img id="img-id-dbd021ea-a656-43e3-ae04-5ac0994c16cc"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-aeb56ca9-2789-40e9-8464-137aa4ff4fdc" ><span id="id-aeb56ca9-2789-40e9-8464-137aa4ff4fdc"><img id="img-id-aeb56ca9-2789-40e9-8464-137aa4ff4fdc" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00008_frag_00001" data-state="slide_00008_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Arm - Reduction of Dimensionality</h1>
+
+<div class="jb-text">
+<ol>
+<li>J1: Shoulder Lateral: in home position, moves the arm in the lateral plane (Pitch)</li>
+<li>J2: Shoulder Frontal: in home position, moves arm in the frontal plane (Swing/Tilt)</li>
+<li>J3: Elbow Transveral: in home position, moves arm in the transversal plane (Yaw)</li>
+<li>J4: Elbow Lateral: in home position, moves arm in the lateral plane (Pitch)</li>
+</ol>
+<p>J1 and J4 work together in the same plane</p>
+<p>J2 is the only one that can move the arm in the Y direction</p>
+<p>J3 does not affect the position of the wrist at all</p>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-382fc518-46f9-478d-a783-be7a04ee490f" ><span id="id-382fc518-46f9-478d-a783-be7a04ee490f"><img id="img-id-382fc518-46f9-478d-a783-be7a04ee490f"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-1cc401f5-7d28-4da7-9b6d-fc2b548f6299" ><span id="id-1cc401f5-7d28-4da7-9b6d-fc2b548f6299"><img id="img-id-1cc401f5-7d28-4da7-9b6d-fc2b548f6299" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00009_frag_00001" data-state="slide_00009_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Arm - Reduction of Dimensionality</h1>
+
+<div class="jb-text">
+<p>So we can remove J3 from consideration to approach the target - only used to orient end effector. θ_arm_3 is arbitrary (0 deg.)</p>
+<p>We calculate the angle between shoulder and target in the Y direction (X-Z plane). We can calculate θ_arm_2
+from position or torso and target location</p>
+<p>Once we know θ_2, then we can establish the plane from shoulder to target. Only J1 and J4 left - so
+we can solve that two-link system. Calculate θ_arm_1 and θ_arm_4</p>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-9aeda41d-2f37-4208-ac9e-2bf0b69b8e43" ><span id="id-9aeda41d-2f37-4208-ac9e-2bf0b69b8e43"><img id="img-id-9aeda41d-2f37-4208-ac9e-2bf0b69b8e43"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-ac8dd38a-cc3d-4935-9543-a1c0de75616b" ><span id="id-ac8dd38a-cc3d-4935-9543-a1c0de75616b"><img id="img-id-ac8dd38a-cc3d-4935-9543-a1c0de75616b" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00010_frag_00001" data-state="slide_00010_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Wrist - Reduction of Dimensionality</h1>
+
+<div class="jb-text">
+<p>Wrist is similar to head as its main purpose is to align (change the orientation)</p>
+<p>Wrist orienatation is determined by three independent joints θ_wrist_1 (yaw), θ_wrist_2 (pitch), θ_wrist_3 (roll)</p>
+<p>θ_wrist_4 is the gripper (open/closed) - depends on what we want to pick up (e.g., size of the cup)</p>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-468b0903-8d77-4ab9-869f-85a51af05159" ><span id="id-468b0903-8d77-4ab9-869f-85a51af05159"><img id="img-id-468b0903-8d77-4ab9-869f-85a51af05159"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-ddbc25ae-5089-452f-bed1-7257e1dbeb45" ><span id="id-ddbc25ae-5089-452f-bed1-7257e1dbeb45"><img id="img-id-ddbc25ae-5089-452f-bed1-7257e1dbeb45" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00011_frag_00001" data-state="slide_00011_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Leg - Reduction of Dimensionality</h1>
+
+<div class="jb-text">
+<p>Break into leg (hip to ankle - 4 joints) and foot parts (ankle to sole of the foot - 2 joints)</p>
+<p>If feet parallel to the ground and parallel to the direction of motion, then we can back-calculate
+position of the ankle</p>
+<p>Transversal orientation of feet can only be controlled by join 1 in the hip. Calculate θ_leg_1</p>
+<p>Position in the y direction is controlled by joint 2 in the hip. Calculate θ_leg_2</p>
+<p>Now we are left with a two link problem (joint 3 and joint 4). Calculate θ_leg_3 and θ_leg_4</p>
+<p>Calculate angles for the ankle/foot to make sure the feet are: (a) parallel to the ground, and (b) parallel to the direction of motion. Calculate θ_leg_5 and θ_leg_6<p>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-459e6d7c-b884-4ceb-9aed-47a6cb70aec4" ><span id="id-459e6d7c-b884-4ceb-9aed-47a6cb70aec4"><img id="img-id-459e6d7c-b884-4ceb-9aed-47a6cb70aec4"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-94cd42a8-959a-4f7a-be42-9d3f2b611235" ><span id="id-94cd42a8-959a-4f7a-be42-9d3f2b611235"><img id="img-id-94cd42a8-959a-4f7a-be42-9d3f2b611235" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00012_frag_00001" data-state="slide_00012_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Head Assembly</h1>
+
+<div class="jb-text">
+<p>Adjust orientation relative to robot (pan and tilt)</p>
+<p>Each join acts on one dimension independently</p>
+<p>Calculate θ_head_1 and θ_head_2
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-7c28d2a6-fa36-4666-b690-653f78d48a49" ><span id="id-7c28d2a6-fa36-4666-b690-653f78d48a49"><img id="img-id-7c28d2a6-fa36-4666-b690-653f78d48a49"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-63f14c51-ce9f-444b-8272-0db198f9441e" ><span id="id-63f14c51-ce9f-444b-8272-0db198f9441e"><img id="img-id-63f14c51-ce9f-444b-8272-0db198f9441e" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+        </div>
+        </div>
+
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info about config & dependencies:
+            // - https://github.com/hakimel/reveal.js#configuration
+            // - https://github.com/hakimel/reveal.js#dependencies
+            Reveal.initialize({
+                math: {
+                    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+                    config: 'TeX-AMS_HTML-full',  // See http://docs.mathjax.org/en/latest/config-files.html
+                    // tex2jax: {
+                    //     inlineMath: [['$', '$'], ['\(', '\)']],
+                    //     displayMath: [['$$', '$$'], ['\[', '\]']],
+                    //     processEscapes: true,
+                    //     processEnvironments: true,
+                    //     skipTags: ['script', 'noscript', 'style', 'textarea', 'code', 'pre'],
+                    //     displayAlign: 'center',
+                    // }                
+                },
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/math/math.js', async: true }
+                ]
+            });
+        </script>
+
+        <script>
+            <!-- Assets -->
+var assets = {
+"robbi" : new JBImage( "robbi", "12677", "162", "138", null, null, "assets/images/robbi", "png" ),
+"logo" : new JBImage( "logo", "12033", "0", "0", null, null, "assets/images/logo", "png" ),
+"fira-logo-1" : new JBImage( "fira-logo-1", "93836", "0", "0", null, null, "assets/images/FIRA-logo-1", "png" ),
+"pairLogo" : new JBImage( "pairLogo", "63051", "0", "0", null, null, "assets/images/pairLogo", "png" ),
+"thor1" : new JBImage( "thor1", "100093", "0", "0", "http://emanual.robotis.com/assets/images/platform/thormang3/thormang3_005.jpg", null, "assets/images/thor1", "jpg" ) 
+};
+var assetInstances = {
+    "id-522758a4-ec06-4af7-971b-86681d4203df": assets["robbi"],
+    "id-bbbb039d-20a5-4205-ad5e-3e350d7578c5": assets["robbi"],
+    "id-1022afe6-fbfa-419d-8fa9-300a93f49fc2": assets["robbi"],
+    "id-bded1c67-e5ac-4372-bf9c-631b6714f316": assets["robbi"],
+    "id-b499742d-b916-47f1-9008-8b36b33b691b": assets["robbi"],
+    "id-aeb56ca9-2789-40e9-8464-137aa4ff4fdc": assets["robbi"],
+    "id-1cc401f5-7d28-4da7-9b6d-fc2b548f6299": assets["robbi"],
+    "id-ac8dd38a-cc3d-4935-9543-a1c0de75616b": assets["robbi"],
+    "id-ddbc25ae-5089-452f-bed1-7257e1dbeb45": assets["robbi"],
+    "id-94cd42a8-959a-4f7a-be42-9d3f2b611235": assets["robbi"],
+    "id-63f14c51-ce9f-444b-8272-0db198f9441e": assets["robbi"],
+    "id-e36004b1-80b5-4c05-8dd3-2aa298ebbd15": assets["logo"],
+    "id-dd9a6315-e193-487a-920a-aba1a0d7cd48": assets["logo"],
+    "id-d2b71a6d-979f-40a3-84b0-2d94bddfa395": assets["logo"],
+    "id-90a004a4-1c7b-4423-9e86-7f30738e29d5": assets["logo"],
+    "id-4eaa1329-96dd-48d1-8975-08d8b56a12bd": assets["logo"],
+    "id-dbd021ea-a656-43e3-ae04-5ac0994c16cc": assets["logo"],
+    "id-382fc518-46f9-478d-a783-be7a04ee490f": assets["logo"],
+    "id-9aeda41d-2f37-4208-ac9e-2bf0b69b8e43": assets["logo"],
+    "id-468b0903-8d77-4ab9-869f-85a51af05159": assets["logo"],
+    "id-459e6d7c-b884-4ceb-9aed-47a6cb70aec4": assets["logo"],
+    "id-7c28d2a6-fa36-4666-b690-653f78d48a49": assets["logo"],
+    "id-7b9ba08e-0ef6-40f7-9c97-62ea578d5745": assets["thor1"]
+};
+<!-- End of Assets -->
+
+            convertURLs(assetInstances, "smart-path");
+        </script>
+        <script>
+            <!-- Characters -->
+var characters =
+{};
+<!-- End of Characters -->
+
+        </script>
+    </body>
+</html>
